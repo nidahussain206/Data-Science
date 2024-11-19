@@ -1,0 +1,45 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_auc_score
+
+# Load the dataset
+data = pd.read_csv('churn_data.csv')
+
+# Quick look at the data
+print(data.head())
+
+# Convert 'Churn' column to numeric (1 for 'Yes', 0 for 'No')
+data['Churn'] = data['Churn'].map({'Yes': 1, 'No': 0}) #This line is added to map 'Yes' to 1 and 'No' to 0
+
+
+# Select features and target variable
+X = data.drop(columns=['Churn', 'customerID'])  # Assuming 'Churn' is the column representing churn
+y = data['Churn']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+
+# Initialize and train the model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+y_pred_prob = model.predict_proba(X_test)[:, 1]  # For probability scores
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+roc_auc = roc_auc_score(y_test, y_pred_prob)
+
+# Print evaluation metrics
+print("Accuracy:", accuracy)
+print("Confusion Matrix:\n", conf_matrix)
+print("Classification Report:\n", class_report)
+print("ROC AUC Score:", roc_auc)
